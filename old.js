@@ -1183,7 +1183,21 @@ function init() {
   try {
     family = getFamily();
     meds = getMeds();
-    try { if (LOCKED_FAMILY) { setFamily(LOCKED_FAMILY); family = LOCKED_FAMILY; } } catch (e) {}
+    try { // смена семьи = стерильно: старое не показываем и не тащим
+      var prevF = getFamily();
+      if (LOCKED_FAMILY) {
+        if (prevF && prevF !== LOCKED_FAMILY) {
+          try { localStorage.removeItem(K_MEDS); localStorage.removeItem(K_V); localStorage.removeItem('silver_key'); localStorage.removeItem(K_OUT); } catch (e) {}
+          try {
+            var drop2 = [];
+            for (var qi = 0; qi < localStorage.length; qi++) { try { var qk = localStorage.key(qi); if (qk && qk.indexOf(K_FIRED + '-') === 0) drop2.push(qk); } catch (e) {} }
+            drop2.forEach(function (qk2) { try { localStorage.removeItem(qk2); } catch (e) {} });
+          } catch (e) {}
+          meds = [];
+        }
+        setFamily(LOCKED_FAMILY); family = LOCKED_FAMILY;
+      }
+    } catch (e) {}
     bind();
     tickClock(); setInterval(tickClock, 1000);
     try { lastLocalV = getV(); } catch (e) {}
