@@ -1,7 +1,7 @@
 /* SilverCare sw.js — офлайн для APK (pwabuilder) + GitHub Pages.
    Кэширует оболочку old.html/css/js и последнее meds.
    МЕНЯЙ ВЕРСИЮ при любом изменении оболочки, иначе залёживается кэш! */
-var CACHE = 'silvercare-v4';
+var CACHE = 'silvercare-v5'; // МЕНЯЙ версию при любом изменении оболочки, иначе залёживается кэш!
 var SHELL = ['old.html', 'old.css', 'old.js', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', function (e) {
@@ -34,7 +34,7 @@ self.addEventListener('notificationclick', function (e) {
         try {
           for (var i = 0; i < list.length; i++) {
             try { if ('focus' in list[i]) list[i].focus(); } catch (err) {}
-            try { list[i].postMessage('silver-taken'); } catch (err) {}
+            try { if (e.action === 'taken') list[i].postMessage('silver-taken'); } catch (err) {}
           }
           if (list.length) return null;
           if (self.clients.openWindow) return self.clients.openWindow('old.html');
@@ -71,5 +71,14 @@ self.addEventListener('fetch', function (e) {
         });
       })
     );
+  } catch (err) {}
+});
+self.addEventListener('push', function (e) {
+  try { // системный пуш от бота: долетает с закрытым приложением
+    var d = {};
+    try { d = e.data ? e.data.json() : {}; } catch (err) {}
+    var opts = { body: (d.body || ''), tag: (d.tag || 'silver-push'), requireInteraction: true, renotify: true, vibrate: [1000, 500, 1000] };
+    try { if (d.actions) opts.actions = d.actions; } catch (err) {}
+    e.waitUntil(self.registration.showNotification((d.title || 'Время пить лекарство!'), opts).catch(function () {}));
   } catch (err) {}
 });

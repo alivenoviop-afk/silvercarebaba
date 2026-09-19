@@ -4,7 +4,7 @@
 (function () {
 'use strict';
 var BUILD = '20260919-f'; // сборка: сверяй с опекуном, должна совпадать
-var LOCKED_FAMILY = '6092-4nhl'; // зафиксированный код: держим только его
+var LOCKED_FAMILY = '5814-k7q2'; // зафиксированный код: держим только его
 
 /* ---------- Помощники ---------- */
 function $(id) { try { return document.getElementById(id); } catch (e) { return null; } }
@@ -62,6 +62,52 @@ function scheduleLocalSync() {
 
 /* Топики: коды разные в обе стороны. Свой ящик (Deck+туннель) — вписать сюда ОДИН раз */
 var NTFY_BASE = 'https://advice-apache-suspension-portion.trycloudflare.com';
+var VAPID_PUBLIC = 'BAk7nUJNAxiZ6gaapZAcg8SHQeAsA7H81ph3xD3xmRcJ7SaaDz-PW5UyFpnOXh9p4_C4L2U6e3Sw26PQCyaC4g8';
+function b64ToBytes(s) {
+  try { // ключ подписи пушей в байты
+    s = String(s || '').replace(/-/g, '+').replace(/_/g, '/');
+    while (s.length % 4) s += '=';
+    var bin = atob(s);
+    var out = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+    return out;
+  } catch (e) { return null; }
+}
+function subscribePush() {
+  try { // подписка на пуш: бот разбудит даже закрытое приложение
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    navigator.serviceWorker.ready.then(function (reg) {
+      try {
+        reg.pushManager.getSubscription().then(function (old) {
+          try {
+            var go = function (sub) {
+              try {
+                var js = sub.toJSON ? sub.toJSON() : null;
+                if (js) publishSub(js);
+                status('Пуш на закрытое приложение включён ✅');
+              } catch (e) {}
+            };
+            if (old) { go(old); return; }
+            reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(VAPID_PUBLIC) }).then(go).catch(function () {});
+          } catch (e) {}
+        }).catch(function () {});
+      } catch (e) {}
+    }).catch(function () {});
+  } catch (e) {}
+}
+function publishSub(sub) {
+  try { // ключи подписки — боту через тот же ящик
+    var f = getFamily();
+    if (!f || !sub || !sub.endpoint) return Promise.resolve(false);
+    var entry = { family: f, type: 'sub', medId: '', at: new Date().toISOString(), id: 'sub-' + Date.now(), sub: sub };
+    var box = outboxRead();
+    box.push(entry);
+    outboxWrite(box);
+    try { logLocalUp(entry); } catch (e) {}
+    return flushOutbox();
+  } catch (e) { return Promise.resolve(false); }
+}
 var downCoolUntil = 0; // backoff: ящик сказал 429 — не долбим 5 минут
 function downUrl(f) { return NTFY_BASE + '/silvercare-' + encodeURIComponent(f) + '-down'; }
 function upUrl(f) { return NTFY_BASE + '/silvercare-' + encodeURIComponent(f) + '-up'; }
@@ -498,7 +544,7 @@ function keepAwake() {
 }
 
 /* ---------- СВЁРНУТ: неснимаемое уведомление в шторке + догонялка ---------- */
-var hbSrc = null;
+var hbSrc = null, hbEl = null;
 function nextPillText() {
   try {
     var hm = nowHM();
@@ -509,8 +555,21 @@ function nextPillText() {
   } catch (e) { return ''; }
 }
 function startHeart() {
-  try { // бесшумное сердцебиение: держит аудиосессию живой в фоне
+  try { // бесшумное сердцебиение + карточка на локскрине: такой фон душат последним
     warmAudio();
+    try {
+      if (!hbEl) {
+        hbEl = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=');
+        try { hbEl.loop = true; hbEl.volume = 0.01; } catch (e) {}
+      }
+      var pp = hbEl.play();
+      if (pp && pp.catch) pp.catch(function () {});
+    } catch (e) {}
+    try {
+      if ('mediaSession' in navigator && window.MediaMetadata) {
+        navigator.mediaSession.metadata = new MediaMetadata({ title: 'SilverCare дежурит', artist: 'Напоминания включены', album: nextPillText() });
+      }
+    } catch (e) {}
     if (!sirenCtx || hbSrc) return;
     var len = sirenCtx.sampleRate * 2;
     var buf = sirenCtx.createBuffer(1, len, sirenCtx.sampleRate);
@@ -522,6 +581,7 @@ function startHeart() {
 }
 function stopHeart() {
   try { if (hbSrc) { try { hbSrc.stop(); } catch (e) {} hbSrc = null; } } catch (e) { hbSrc = null; }
+  try { if (hbEl) { try { hbEl.pause(); } catch (e) {} } } catch (e) {}
 }
 function watchNotify() {
   try { // неснимаемый дежурный в шторке: свернула — напоминание висит
@@ -1047,6 +1107,7 @@ function unlockAll() {
     try { flushOutbox(); } catch (e) {}
     try { reportSkipped(); } catch (e) {}
     try { publishUp('alive', ''); } catch (e) {}
+    try { subscribePush(); } catch (e) {}
   } catch (e) {}
 }
 
