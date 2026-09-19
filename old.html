@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#F8F7F4">
+<meta name="description" content="SilverCare — Мои Таблетки. Большой экран для бабушки: напоминания, голос опекуна, SOS.">
+<title>Мои Таблетки — SilverCare</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="old.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+</head>
+<body>
+
+<!-- ПЕРВЫЙ ЗАПУСК: разблокировка звука -->
+<div id="gate" role="alertdialog" aria-label="Включение звука">
+  <h1>НАЖМИ ЧТОБЫ<br>ВКЛЮЧИТЬ ЗВУК</h1>
+  <button id="gateBtn" type="button">ВКЛЮЧИТЬ ЗВУК</button>
+  <p class="hint">Нажмите один раз.<br>Дальше всё будет говорить голосом.<br>Разрешите микрофон — тогда хватит сказать «выпил».</p>
+</div>
+
+<main id="app">
+  <div id="vibDot" aria-hidden="true">📳</div>
+  <div id="clock" aria-live="off">--:--</div>
+  <h1 class="app-title">МОИ ТАБЛЕТКИ</h1>
+
+  <!-- Простой режим: если семьи нет — одно поле -->
+  <div id="setup" hidden>
+    <p>Введите 4 цифры семьи.<br>Их дал опекун.</p>
+    <input id="familyInput" inputmode="numeric" pattern="[0-9]{4}" maxlength="9"
+           placeholder="7392" aria-label="код семьи">
+    <button id="findBtn" class="btn-green" type="button">НАЙТИ</button>
+    <p class="hint">Пример: 7392 или 7392-x7K2</p>
+  </div>
+
+  <button id="memoryBtn" class="btn-blue" type="button">ПАМЯТЬ</button>
+  <button id="sosBtn" class="btn-red" type="button">ПОМОГИТЕ!</button>
+  <button id="repeatBtn" class="btn-white" type="button">ПОВТОРИТЬ</button>
+
+  <ul id="meds" aria-live="polite" aria-label="Список лекарств"></ul>
+
+  <div id="status" aria-live="polite">Загрузка...</div>
+  <div id="diag" aria-label="Технические данные"></div>
+</main>
+
+<!-- АЛАРМ НА ВЕСЬ ЭКРАН -->
+<div id="alarm" role="alertdialog" aria-label="Время пить лекарство">
+  <div id="alarmTitle">ВРЕМЯ ПИТЬ!</div>
+  <div id="alarmCircle" aria-hidden="true"></div>
+  <div id="alarmName">Лекарство</div>
+  <div id="alarmDose">1 шт</div>
+  <div id="alarmTime">08:00</div>
+  <button id="takenBtn" type="button">✓ Я ВЫПИЛ!</button>
+  <button id="alarmSos" type="button" hidden>ПОМОГИТЕ!</button>
+  <p id="voiceHint" class="hint" style="color:#fff;">Или скажите вслух: «ВЫПИЛ»</p>
+</div>
+
+<!-- ИГРА ПАМЯТЬ — тот же экран, оверлей -->
+<div id="memory" role="dialog" aria-label="Игра память">
+  <div id="memTitle">ПАМЯТЬ</div>
+  <div id="memCards"></div>
+  <div id="memScore">Счёт: 0</div>
+  <button id="memClose" type="button">ЗАКРЫТЬ</button>
+</div>
+
+<script src="old.js"></script>
+</body>
+</html>

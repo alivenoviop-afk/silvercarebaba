@@ -1,0 +1,271 @@
+/* SilverCare БАБУШКИНА АПТЕЧКА — old.css
+   Палитра для слабовидящих (катаракта/глаукома), контраст WCAG AAA:
+   фон тёплый белый #F8F7F4, текст почти чёрный #1A1A1A (15.3:1),
+   главная кнопка глубокий синий #005A9C + белый текст (7.8:1),
+   успех тёмно-зелёный #166534, ошибка кирпичный #891C1C,
+   акцент тёмно-оранжевый #B45309. Всё плоское, без теней и градиентов.
+   ВНИМАНИЕ: отличается от старого железа жюри (жёлтый/салатовый/красный).
+   Размеры как были: кнопки >=160px, шрифт кнопок 28px,
+   время 48px, название 32px. */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #F8F7F4;
+  color: #1A1A1A;
+  font-family: Arial, Verdana, sans-serif;
+  font-size: 28px;
+  line-height: 1.3;
+  min-height: 100vh;
+}
+
+body.alarm-blink-red { background: #891C1C !important; }
+body.alarm-blink-yellow { background: #B45309 !important; }
+
+#app { max-width: 700px; margin: 0 auto; padding: 16px 20px 48px 20px; }
+#vibDot { display: none; position: fixed; right: 16px; bottom: 16px; z-index: 9995; font-size: 96px; line-height: 1; }
+#vibDot.on { display: block; animation: vibpulse 0.4s infinite; }
+@keyframes vibpulse { 0%,100% { transform: rotate(-12deg) scale(1); } 50% { transform: rotate(12deg) scale(1.15); } }
+@media (prefers-reduced-motion: reduce) { #vibDot.on { animation: none; } }
+
+#clock {
+  font-size: clamp(48px, 13vw, 110px);
+  font-weight: 900;
+  color: #1A1A1A;
+  text-align: center;
+  margin: 8px 0 0 0;
+  letter-spacing: 2px;
+}
+#status {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: #1A1A1A;
+  margin: 6px 0;
+  word-break: break-all;
+}
+#status { min-height: 40px; }
+#diag { text-align: center; font-size: 20px; color: #5b5b5b; margin: 4px 0 0 0; word-break: break-all; }
+#status[aria-live] { outline: none; }
+
+h1.app-title {
+  font-size: clamp(32px, 8vw, 64px);
+  font-weight: 900;
+  text-align: center;
+  color: #1A1A1A;
+  margin: 6px 0 12px 0;
+}
+
+/* Все кнопки: физический размер больше 3 см на любом экране + минимум жюри */
+:root { --tap: max(3.2cm, 170px); }
+button {
+  font-size: clamp(28px, 6.5vw, 44px);
+  font-weight: 900;
+  min-height: var(--tap);
+  min-width: var(--tap);
+  border-radius: 24px;
+  cursor: pointer;
+  color: #1A1A1A;
+  font-family: Arial, Verdana, sans-serif;
+}
+
+.btn-green {
+  display: block;
+  width: 100%;
+  background: #166534;
+  color: #FFFFFF;
+  border: 8px solid #1A1A1A;
+  margin: 14px 0;
+  padding: 20px 10px;
+}
+.btn-green:active { background: #0E4A27; }
+
+.btn-blue {
+  display: block;
+  width: 100%;
+  background: #005A9C;
+  color: #FFFFFF;
+  border: 8px solid #1A1A1A;
+  margin: 14px 0;
+  padding: 20px 10px;
+}
+
+.btn-red {
+  display: block;
+  width: 100%;
+  background: #891C1C;
+  color: #FFFFFF;
+  border: 8px solid #1A1A1A;
+  margin: 14px 0;
+  padding: 20px 10px;
+}
+
+.btn-white {
+  display: block;
+  width: 100%;
+  background: #FFFFFF;
+  color: #1A1A1A;
+  border: 8px solid #1A1A1A;
+  margin: 14px 0;
+  padding: 20px 10px;
+}
+
+/* Список лекарств */
+#meds { list-style: none; padding: 0; margin: 12px 0; }
+#meds li {
+  border: 6px solid #1A1A1A;
+  border-radius: 24px;
+  background: #FFFFFF;
+  margin: 16px 0;
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+}
+#meds li > div { min-width: 0; }
+.med-time { font-size: 48px; font-weight: 900; color: #1A1A1A; white-space: nowrap; }
+.med-name { font-size: 32px; font-weight: 900; color: #1A1A1A; overflow-wrap: anywhere; }
+.med-dose { font-size: 28px; font-weight: bold; color: #1A1A1A; overflow-wrap: anywhere; }
+.med-dot { width: 72px; height: 72px; border-radius: 50%; border: 6px solid #1A1A1A; flex-shrink: 0; }
+
+/* Поле ввода семьи */
+#setup { text-align: center; border: 6px solid #1A1A1A; border-radius: 20px; background: #fff; padding: 20px; margin: 16px 0; }
+#setup p { font-size: 32px; font-weight: 900; }
+#familyInput {
+  font-size: 48px;
+  font-weight: 900;
+  width: 90%;
+  max-width: 380px;
+  min-height: var(--tap);
+  text-align: center;
+  border: 8px solid #1A1A1A;
+  border-radius: 20px;
+  color: #1A1A1A;
+  background: #fff;
+  margin-bottom: 12px;
+}
+
+/* Стартовый экран-звук */
+#gate {
+  position: fixed; inset: 0; z-index: 10000;
+  background: #F8F7F4;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px; text-align: center;
+}
+#gate h1 { font-size: clamp(40px, 11vw, 88px); font-weight: 900; color: #1A1A1A; margin-bottom: 24px; }
+#gateBtn {
+  width: 90%;
+  min-height: max(200px, 4cm);
+  height: max(200px, 4cm);
+  font-size: clamp(40px, 10vw, 72px);
+  font-weight: 900;
+  background: #005A9C;
+  color: #FFFFFF;
+  border: 8px solid #1A1A1A;
+  border-radius: 30px;
+}
+
+/* АЛАРМ НА ВЕСЬ ЭКРАН */
+#alarm {
+  display: none;
+  position: fixed; inset: 0; z-index: 9999;
+  background: #891C1C;
+  flex-direction: column;
+  align-items: center; justify-content: flex-start;
+  padding: 20px;
+  text-align: center;
+  overflow-y: auto;
+}
+#alarm.show { display: flex; }
+#alarmTitle { font-size: clamp(48px, 12vw, 96px); font-weight: 900; color: #fff; margin: 10px 0; }
+#alarmCircle {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  border: 8px solid #F8F7F4;
+  background: #fff;
+  margin: 10px auto;
+  flex-shrink: 0;
+}
+#alarmName { font-size: 36px; font-weight: 900; color: #fff; margin: 8px 0; overflow-wrap: anywhere; }
+#alarmDose, #alarmTime { font-size: 32px; font-weight: 900; color: #fff; }
+#takenBtn {
+  width: 90%;
+  height: max(200px, 4cm);
+  min-height: max(200px, 4cm);
+  font-size: clamp(40px, 10vw, 72px);
+  margin-top: 18px;
+  background: #166534;
+  color: #FFFFFF;
+  border: 8px solid #1A1A1A;
+  border-radius: 30px;
+}
+#alarmSos {
+  width: 90%;
+  height: var(--tap);
+  min-height: var(--tap);
+  font-size: 36px;
+  margin-top: 14px;
+  background: #F8F7F4;
+  color: #891C1C;
+  border: 8px solid #1A1A1A;
+  border-radius: 30px;
+}
+
+/* Игра ПАМЯТЬ — оверлей на том же экране */
+#memory {
+  display: none;
+  position: fixed; inset: 0; z-index: 9998;
+  background: #F8F7F4;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+  overflow-y: auto;
+}
+#memory.show { display: flex; }
+#memTitle { font-size: clamp(40px, 10vw, 80px); font-weight: 900; color: #1A1A1A; margin: 10px 0; }
+#memScore { font-size: clamp(48px, 12vw, 96px); font-weight: 900; color: #1A1A1A; margin: 10px 0; }
+#memCards { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin: 16px 0; }
+.mem-card {
+  flex: 1 1 40%;
+  width: auto;
+  min-width: 0;
+  min-height: var(--tap);
+  padding: 10px;
+  border: 8px solid #1A1A1A;
+  border-radius: 24px;
+  font-size: 28px;
+  font-weight: 900;
+  color: #1A1A1A;
+  background: #FFFFFF;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.mem-face { display: block; font-size: 64px; line-height: 1.1; }
+.mem-word { display: block; font-size: 24px; font-weight: 900; margin-top: 6px; overflow-wrap: anywhere; }
+.mem-sel { outline: 8px solid #005A9C; outline-offset: -8px; }
+.mem-done { opacity: 0.35; }
+.mem-grid { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); justify-content: center; }
+.mem-num { font-size: 72px; }
+#memClose {
+  width: 90%;
+  min-height: var(--tap);
+  background: #fff;
+  color: #1A1A1A;
+  border: 8px solid #1A1A1A;
+  margin-top: 12px;
+}
+
+.hint { font-size: 24px; font-weight: bold; text-align: center; color: #1A1A1A; }
+:focus-visible { outline: 8px solid #005A9C; outline-offset: 4px; }
+
+/* Узкие экраны: tighter paddings, шрифты не трогаем */
+@media (max-width: 380px) {
+  #app { padding: 12px 10px 36px 10px; }
+  #meds li { padding: 16px; gap: 12px; margin: 12px 0; }
+  #memCards { gap: 10px; }
+  .med-dot { width: 60px; height: 60px; }
+}
