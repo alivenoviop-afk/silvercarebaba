@@ -61,7 +61,7 @@ function scheduleLocalSync() {
 }
 
 /* Топики: коды разные в обе стороны. Свой ящик (Deck+туннель) — вписать сюда ОДИН раз */
-var NTFY_BASE = 'https://continuous-lasting-cho-sheer.trycloudflare.com';
+var NTFY_BASE = 'https://vaccine-previously-calling-expensive.trycloudflare.com';
 var VAPID_PUBLIC = 'BAk7nUJNAxiZ6gaapZAcg8SHQeAsA7H81ph3xD3xmRcJ7SaaDz-PW5UyFpnOXh9p4_C4L2U6e3Sw26PQCyaC4g8';
 function b64ToBytes(s) {
   try { // ключ подписи пушей в байты

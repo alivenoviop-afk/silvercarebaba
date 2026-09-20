@@ -1,7 +1,7 @@
 /* SilverCare sw.js — офлайн для APK (pwabuilder) + GitHub Pages.
    Кэширует оболочку old.html/css/js и последнее meds.
    МЕНЯЙ ВЕРСИЮ при любом изменении оболочки, иначе залёживается кэш! */
-var CACHE = 'silvercare-v5'; // МЕНЯЙ версию при любом изменении оболочки, иначе залёживается кэш!
+var CACHE = 'silvercare-v6'; // МЕНЯЙ версию при любом изменении оболочки, иначе залёживается кэш!
 var SHELL = ['old.html', 'old.css', 'old.js', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', function (e) {
@@ -47,6 +47,7 @@ self.addEventListener('notificationclick', function (e) {
 self.addEventListener('fetch', function (e) {
   try {
     var url = e.request.url || '';
+    if (e.request.method !== 'GET') return; // PUT/POST в ящик — только сеть, кэш их не умеет
     // ntfy и CDN голоса — всегда сеть, без кэша
     if (url.indexOf('ntfy.sh') !== -1 || url.indexOf('catbox.moe') !== -1) {
       e.respondWith(fetch(e.request).catch(function () {
