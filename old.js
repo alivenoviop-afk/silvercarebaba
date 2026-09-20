@@ -18,7 +18,7 @@ function isToday(m) {
     return m.days.indexOf(new Date().getDay()) !== -1;
   } catch (e) { return true; }
 }
-function status(t) { try { var el = $('status'); if (el) el.textContent = t; } catch (e) {} }
+function status(t) { try { var el = $('status'); if (el && el.textContent !== t) el.textContent = t; } catch (e) {} }
 
 /* ---------- Состояние ---------- */
 var K_FAM = 'silver_family', K_V = 'silver_v', K_MEDS = 'silver_meds',
@@ -61,7 +61,7 @@ function scheduleLocalSync() {
 }
 
 /* Топики: коды разные в обе стороны. Свой ящик (Deck+туннель) — вписать сюда ОДИН раз */
-var NTFY_BASE = 'https://advice-apache-suspension-portion.trycloudflare.com';
+var NTFY_BASE = 'https://continuous-lasting-cho-sheer.trycloudflare.com';
 var VAPID_PUBLIC = 'BAk7nUJNAxiZ6gaapZAcg8SHQeAsA7H81ph3xD3xmRcJ7SaaDz-PW5UyFpnOXh9p4_C4L2U6e3Sw26PQCyaC4g8';
 function b64ToBytes(s) {
   try { // ключ подписи пушей в байты
@@ -119,6 +119,7 @@ function speak(text, onend) {
     if (!soundOn) { try { if (onend) onend(); } catch (e) {} return; }
     if (!('speechSynthesis' in window)) { try { if (onend) onend(); } catch (e) {} return; }
     try { window.speechSynthesis.cancel(); } catch (e) {}
+    try { window.speechSynthesis.resume(); } catch (e) {}
     var u = new SpeechSynthesisUtterance(text);
     u.lang = 'ru-RU'; u.rate = 0.9; u.volume = 1; u.pitch = 1;
     try {
@@ -482,6 +483,7 @@ function warmAudio() {
     if (!AC) return;
     if (!sirenCtx) { try { sirenCtx = new AC(); } catch (e) { return; } }
     try { var pr = sirenCtx.resume(); if (pr && pr.catch) pr.catch(function () {}); } catch (e) {}
+    try { sirenCtx.onstatechange = function () { try { if (sirenCtx && sirenCtx.state === 'suspended' && (soundOn || alarmActive)) sirenCtx.resume(); } catch (e) {} }; } catch (e) {}
   } catch (e) {}
 }
 function startSiren() {
@@ -497,7 +499,7 @@ function startSiren() {
     try { sirenOsc.connect(sirenGain); sirenGain.connect(sirenCtx.destination); } catch (e) { return; }
     try { sirenOsc.start(); } catch (e) { return; }
     var hi = false;
-    sirenTimer = setInterval(function () { try { hi = !hi; sirenOsc.frequency.value = hi ? 1174 : 880; } catch (e) {} }, 400);
+    sirenTimer = setInterval(function () { try { hi = !hi; sirenOsc.frequency.value = hi ? 1174 : 880; try { if (sirenCtx && sirenCtx.state === 'suspended') sirenCtx.resume(); } catch (e) {} } catch (e) {} }, 400);
   } catch (e) {}
 }
 function stopSiren() {
@@ -635,6 +637,8 @@ function voiceLoop() {
         voiceTimer = setTimeout(function () { try { voiceLoop(); } catch (e) {} }, 1500);
       } catch (e) {}
     };
+    try { if (hbEl) { try { var pp2 = hbEl.play(); if (pp2 && pp2.catch) pp2.catch(function () {}); } catch (e) {} } } catch (e) {}
+    try { if (sirenCtx && sirenCtx.state === 'suspended') { try { sirenCtx.resume(); } catch (e) {} } } catch (e) {}
     try {
       var r = playMedVoice(m);
       if (r && r.then) r.then(function () { done(); }).catch(function () { done(); });
@@ -735,6 +739,7 @@ function fireAlarm(m) {
         navigator.mediaSession.metadata = new MediaMetadata({ title: 'Время пить лекарство!', artist: 'SilverCare', album: (m.name || '') + ' ' + (m.dose || '') });
       }
     } catch (e) {}
+    try { if ('mediaSession' in navigator) { try { navigator.mediaSession.playbackState = 'playing'; } catch (e) {} } } catch (e) {}
     var al = $('alarm'); if (al) { al.style.display = 'block'; al.classList.add('show'); }
     var nm = $('alarmName'); if (nm) nm.textContent = m.name || 'Лекарство';
     var dz = $('alarmDose'); if (dz) { var pc2 = '', k2 = 'pill'; try { k2 = m.kind || 'pill'; } catch (e) {} try { if (k2 === 'pill') pc2 = pillColorRu(m.color); } catch (e) {} dz.textContent = (m.dose || '') + (pc2 ? ' · ' + pc2 + ' таблетка' : ''); }
@@ -799,6 +804,7 @@ function stopAlarmTaken(how) {
     try { stopSiren(); } catch (e) {}
     try { document.title = 'Мои Таблетки — SilverCare'; } catch (e) {}
     alarmActive = false; alarmMed = null;
+    try { if ('mediaSession' in navigator) { try { navigator.mediaSession.playbackState = 'paused'; } catch (e) {} } } catch (e) {}
     if (m) { try { publishUp('taken', m.id); } catch (e) {} }
     speak(how === 'voice' ? 'Молодец! Я записала!' : 'Молодец! Вы выпили!');
     status('Выпито! Молодец!');
